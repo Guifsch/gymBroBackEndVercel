@@ -14,13 +14,22 @@ dotenv.config();
 
 const app = express();
 
+// mongoose
+//   .connect(process.env.MONGO)
+//   .then(() => {
+//     console.log("MongoDB conectado");
+//     app.listen(3000, (req, res) => {
+//       console.log(`Servidor rodando na porta: 3000.`);
+//     });
+//   })
+//   .catch((err) => {
+//     console.log(err, "ERROR");
+//   });
+
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
     console.log("MongoDB conectado");
-    app.listen(3000, (req, res) => {
-      console.log(`Servidor rodando na porta: 3000.`);
-    });
   })
   .catch((err) => {
     console.log(err, "ERROR");
@@ -45,9 +54,9 @@ const corsOptions = {
   exposedHeaders: ["set-cookie"],
 };
 
-app.use("/", cors(corsOptions));
+// app.use("/", cors(corsOptions));
 
-
+app.use(cors(corsOptions));
 app.use(cookieParser()); //extrai as informações contidas nos cookies e as torna acessíveis para o servidor
 app.use(express.json()); //middleware usado para analisar o corpo das solicitações HTTP com formato JSON
 
