@@ -8,72 +8,59 @@ import workoutRoutes from "./routes/workout.route.js";
 import categoryRoutes from "./routes/category.route.js";
 import calendarRoutes from "./routes/calendar.route.js";
 import setRoutes from "./routes/set.route.js";
+import resetRoutes from "./routes/reset.route.js";
 import cookieParser from "cookie-parser";
-import path from 'path';
+
 dotenv.config();
 
 const app = express();
-
-// mongoose
-//   .connect(process.env.MONGO)
-//   .then(() => {
-//     console.log("MongoDB conectado");
-//     app.listen(3000, (req, res) => {
-//       console.log(`Servidor rodando na porta: 3000.`);
-//     });
-//   })
-//   .catch((err) => {
-//     console.log(err, "ERROR");
-//   });
 
 mongoose
   .connect(process.env.MONGO)
   .then(() => {
     console.log("MongoDB conectado");
+    app.listen(process.env.PORT || 3000, (req, res) => {
+      console.log(`Servidor rodando na porta: 3000.`);
+    });
   })
   .catch((err) => {
     console.log(err, "ERROR");
   });
-
-//   const __dirname = path.resolve();
-
-
-
-// app.use(express.static(path.join(__dirname, '/client/dist')));
-
-// app.get('*', (req, res) => {
-//   res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
-// });
-
-
 const corsOptions = {
-  //configuração do cors pra não dar o erro cors e o cookie ser setado do backend de forma correta no cookies do applications usando o axios
-  // origin: ["http://localhost:5173", "http://192.168.15.7:5173"],
-  origin: ["http://localhost:5173"],
+  origin: ["https://gym-bro-frontend.vercel.app", "http://localhost:5173"],
   credentials: true,
-  exposedHeaders: ["set-cookie"],
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], // Incluindo OPTIONS
+  allowedHeaders: ["Content-Type", "Authorization"], // Adicione outros cabeçalhos se necessário
 };
 
-// app.use("/", cors(corsOptions));
-
+// Middleware de CORS
 app.use(cors(corsOptions));
-app.use(cookieParser()); //extrai as informações contidas nos cookies e as torna acessíveis para o servidor
-app.use(express.json()); //middleware usado para analisar o corpo das solicitações HTTP com formato JSON
 
+// Middleware para tratar solicitações OPTIONS
+app.options('*', cors(corsOptions));
+
+// Outros middlewares
+app.use(cookieParser()); // Extrai as informações contidas nos cookies e as torna acessíveis para o servidor
+app.use(express.json()); // Middleware usado para analisar o corpo das solicitações HTTP com formato JSON
+
+// Suas rotas
 app.use("/api/user", userRoutes);
 app.use("/api/auth", authRoutes);
-app.use("/api/workout", workoutRoutes)
-app.use("/api/category", categoryRoutes)
-app.use("/api/set", setRoutes)
-app.use("/api/calendar", calendarRoutes)
+app.use("/api/workout", workoutRoutes);
+app.use("/api/category", categoryRoutes);
+app.use("/api/set", setRoutes);
+app.use("/api/calendar", calendarRoutes);
+app.use("/api/reset", resetRoutes);
 
-
+// Middleware de tratamento de erros
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500;
   const message = err.message || "Internal Server Error";
   return res.status(statusCode).json({
-    sucess: false,
+    success: false,
     error: message,
     statusCode: statusCode,
   });
 });
+
+export default app;

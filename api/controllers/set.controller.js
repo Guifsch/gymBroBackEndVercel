@@ -1,4 +1,3 @@
-import Workout from "../models/workout.model.js";
 import Set from "../models/set.model.js";
 
 import { errorHandler } from "../utils/error.js";
@@ -43,9 +42,7 @@ export const updateSet = async (req, res, next) => {
   const { name, comment, selectedItems } = req.body;
 
   try {
-    // Verificar se os IDs dos exercícios são válidos
-    // const workouts = await Workout.find({ _id: { $in: selectedItems } });
-
+    
     if (!selectedItems.length) {
       return next(
         errorHandler(400, "Por favor preencha todos os campos obrigatórios!")
