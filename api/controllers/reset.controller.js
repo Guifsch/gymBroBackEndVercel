@@ -11,14 +11,13 @@ const transporter = nodemailer.createTransport({
   port: 587,
   secure: false, // true for 465, false for other ports
   auth: {
-    user: process.env.EMAIL_USER, // seu email hotmail
-    pass: process.env.EMAIL_PASS  // sua senha do email hotmail
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS  
   }
 });
 
 export const forgotPassword = async (req, res, next) => {
   const { email } = req.body;
-
   try {
     const user = await User.findOne({ email });
     if (!user) {
@@ -34,8 +33,7 @@ export const forgotPassword = async (req, res, next) => {
       expires: Date.now() + 3600000, // 1 hora
     });
     await resetToken.save();
-
-    const resetUrl = `${process.env.BASE_URL}/reset-password?token=${token}`;
+    const resetUrl = `${process.env.BASE_URL}/reset-password?token=${token}&id=${resetToken._id}`;
 
     await transporter.sendMail({
       to: email,
@@ -52,15 +50,17 @@ export const forgotPassword = async (req, res, next) => {
 
 export const resetPassword = async (req, res, next) => {
   const { newPassword } = req.body;
-  const { token } = req.query;
+  const { token, id } = req.query;
 
   try {
-    const resetToken = await ResetToken.findOne({ token: bcryptjs.hashSync(token, 10) });
+    const now = new Date();//3h nas frente
 
+    await ResetToken.deleteMany({ expires: { $lt: now } }); //limpa tokens expirados
+
+    const resetToken = await ResetToken.findById(id);
     if (!resetToken || resetToken.expires < Date.now()) {
       return res.status(400).json({ message: 'Token inválido ou expirado.' });
     }
-
     const isMatch = bcryptjs.compareSync(token, resetToken.token);
     if (!isMatch) {
       return res.status(400).json({ message: 'Token inválido.' });
@@ -89,4 +89,3 @@ export const resetPassword = async (req, res, next) => {
     res.status(500).json({ message: 'Erro ao redefinir a senha.' });
   }
 };
-
