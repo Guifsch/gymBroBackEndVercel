@@ -13,7 +13,7 @@ export const verifyToken = (req, res, next) => {
     const newToken = jwt.sign({ id: user.id }, process.env.JWT_SECRET);
 
     const expiryDate = new Date(Date.now() + 3600000);
-    // Defina o novo token no cookie
+
     res.cookie("access_token", newToken, {
       httpOnly: true,
       expires: expiryDate,

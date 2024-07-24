@@ -76,14 +76,14 @@ export const google = async (req, res, next) => {
 
     if (user) {
       // Se já houver um usuário registrado com a conta Google, apenas cria o token
-      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-        expiresIn: "1h", // Token expira em 1 hora
-      });
+      const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET);
+      const expiryDate = new Date(Date.now() + 3600000);
       const { password: hashedPassword, ...resto } = user._doc;
 
       res
         .cookie("access_token", token, {
           httpOnly: true,
+          expires: expiryDate,
           secure: process.env.NODE_ENV === "production", // Use secure em produção
           sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Configuração para produção
           path: "/",
@@ -105,14 +105,14 @@ export const google = async (req, res, next) => {
 
       // Salva no banco de dados
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET, {
-        expiresIn: "1h", // Token expira em 1 hora
-      });
+      const token = jwt.sign({ id: newUser._id }, process.env.JWT_SECRET )
+      const expiryDate = new Date(Date.now() + 3600000);
       const { password: hashedPassword2, ...resto } = newUser._doc;
 
       res
         .cookie("access_token", token, {
           httpOnly: true,
+          expires: expiryDate,
           secure: process.env.NODE_ENV === "production", // Use secure em produção
           sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Configuração para produção
           path: "/",
