@@ -20,7 +20,7 @@ export const postCalendar = async (req, res, next) => {
       return res.status(201).json({ message: "Calendário criado com sucesso" });
     } else {
       // Atualizar o calendário existente
-      calendar.calendarItems = calendarItems.map(item => {
+      calendar.calendarItems = calendarItems.map((item) => {
         return {
           name: item.name,
           start: item.start,
@@ -30,30 +30,27 @@ export const postCalendar = async (req, res, next) => {
       });
 
       await calendar.save();
-      return res.status(200).json({ message: "Calendário atualizado com sucesso", calendar });
+      return res
+        .status(200)
+        .json({ message: "Calendário atualizado com sucesso" });
     }
   } catch (error) {
-    next(
-      errorHandler(400, "Oops, algo deu errado!")
-    );
+    next(errorHandler(400, "Oops, algo deu errado!"));
   }
 };
 
 export const getCalendar = async (req, res, next) => {
   const userId = req.user.id;
   try {
-    const calendar = await Calendar.find({ userId })
-      .populate({
-        path: 'calendarItems',
-        populate: {
-          path: 'selectedItems',
-          model: 'Workout'
-        }
-      });
+    const calendar = await Calendar.find({ userId }).populate({
+      path: "calendarItems",
+      populate: {
+        path: "selectedItems",
+        model: "Workout",
+      },
+    });
     res.status(200).json(calendar);
   } catch (error) {
-    next(
-      errorHandler(400, "Oops, algo deu errado!")
-    );
+    next(errorHandler(400, "Oops, algo deu errado!"));
   }
 };

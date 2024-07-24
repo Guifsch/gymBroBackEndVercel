@@ -21,7 +21,7 @@ export const forgotPassword = async (req, res, next) => {
   try {
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'Usuário não encontrado.' });
+      return next(errorHandler(400, "Usuário não encontrado!"));
     }
 
     const token = bcryptjs.genSaltSync(10); // Gera um token usando bcrypt
@@ -33,7 +33,11 @@ export const forgotPassword = async (req, res, next) => {
       expires: Date.now() + 3600000, // 1 hora
     });
     await resetToken.save();
-    const resetUrl = `${process.env.BASE_URL}/reset-password?token=${token}&id=${resetToken._id}`;
+    const baseUrl = process.env.NODE_ENV === 'production'
+  ? 'https://gym-bro-frontend.vercel.app'
+  : 'http://localhost:5173';
+
+    const resetUrl = `${baseUrl}/reset-password?token=${token}&id=${resetToken._id}`;
 
     await transporter.sendMail({
       to: email,
@@ -44,7 +48,7 @@ export const forgotPassword = async (req, res, next) => {
 
     res.status(200).json({ message: 'E-mail de redefinição enviado com sucesso.' });
   } catch (error) {
-    res.status(500).json({ message: 'Erro ao enviar o e-mail de redefinição.' });
+    next(errorHandler(500, "Erro ao enviar o e-mail de redefinição."));
   }
 };
 
@@ -59,21 +63,21 @@ export const resetPassword = async (req, res, next) => {
 
     const resetToken = await ResetToken.findById(id);
     if (!resetToken || resetToken.expires < Date.now()) {
-      return res.status(400).json({ message: 'Token inválido ou expirado.' });
+      return next(errorHandler(400, "Token inválido ou expirado."));
     }
     const isMatch = bcryptjs.compareSync(token, resetToken.token);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Token inválido.' });
+      return next(errorHandler(400, "Token inválido."));
     }
 
     const user = await User.findById(resetToken.userId);
     if (!user) {
-      return res.status(400).json({ message: 'Usuário não encontrado.' });
+      return next(errorHandler(400, "Usuário não encontrado."));
     }
 
     // Verificar se a nova senha é igual à senha atual
     if (bcryptjs.compareSync(newPassword, user.password)) {
-      return res.status(400).json({ message: 'A nova senha não pode ser igual à senha atual.' });
+      return next(errorHandler(400, "A nova senha não pode ser igual à senha atual"));
     }
 
     // Atualizar a senha do usuário
@@ -86,6 +90,6 @@ export const resetPassword = async (req, res, next) => {
     res.status(200).json({ message: 'Senha redefinida com sucesso.' });
   } catch (error) {
     console.error(error);
-    res.status(500).json({ message: 'Erro ao redefinir a senha.' });
+    next(errorHandler(500, "Erro ao redefinir a senha."));
   }
 };
