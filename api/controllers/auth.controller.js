@@ -46,10 +46,9 @@ export const signin = async (req, res, next) => {
       return next(errorHandler(401, "Usuário ou senha incorreto"));
     }
 
-    // Gerar o token com expiração
-    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET, {
-      expiresIn: "1h", // Token expira em 1 hora
-    });
+    const token = jwt.sign({ id: validUser._id }, process.env.JWT_SECRET);
+
+    const expiryDate = new Date(Date.now() + 3600000);
 
     // Excluir a senha dos dados que serão retornados
     const { password: hashedPassword, ...resto } = validUser._doc;
@@ -58,6 +57,7 @@ export const signin = async (req, res, next) => {
     res
       .cookie("access_token", token, {
         httpOnly: true,
+        expires: expiryDate,
         secure: process.env.NODE_ENV === "production", // Use secure em produção
         sameSite: process.env.NODE_ENV === "production" ? "None" : "Lax", // Configuração para produção
         path: "/",
