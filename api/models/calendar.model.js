@@ -16,6 +16,12 @@ const CalendarItemsSchema = new mongoose.Schema(
     comment: {
       type: String,
     },
+    textColor: {
+      type: String,
+    },
+    cardColor: {
+      type: String,
+    },
     selectedItems: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Workout',

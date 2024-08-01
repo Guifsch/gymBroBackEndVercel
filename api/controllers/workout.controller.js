@@ -73,6 +73,7 @@ export const updateWorkouts = async (req, res, next) => {
           serie: req.body.serie,
           exercisePicture: req.body.exercisePicture,
           category: req.body.category,
+          comment: req.body.comment,
         },
       },
       { new: true, runValidators: true }

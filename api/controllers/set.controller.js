@@ -4,12 +4,14 @@ import { errorHandler } from "../utils/error.js";
 
 export const postSet = async (req, res, next) => {
   const userId = req.user.id
-  const { name, comment, selectedItems } = req.body;
+  const { name, comment, selectedItems, textColor, cardColor } = req.body;
 
   const newSet = new Set({
     name,
     userId,
     comment,
+    textColor,
+    cardColor,
     selectedItems: selectedItems,
   });
 
@@ -39,7 +41,7 @@ export const getSet = async (req, res, next) => {
 
 export const updateSet = async (req, res, next) => {
   const { id } = req.params;
-  const { name, comment, selectedItems } = req.body;
+  const { name, comment, selectedItems, textColor, cardColor } = req.body;
 
   try {
     
@@ -57,6 +59,8 @@ export const updateSet = async (req, res, next) => {
           name: name,
           comment: comment,
           selectedItems: selectedItems,
+          textColor: textColor,
+          cardColor: cardColor,
         },
       },
       { 

@@ -25,6 +25,8 @@ export const postCalendar = async (req, res, next) => {
           name: item.name,
           start: item.start,
           comment: item.comment,
+          textColor: item.textColor,
+          cardColor: item.cardColor,
           selectedItems: item.selectedItems,
         };
       });
