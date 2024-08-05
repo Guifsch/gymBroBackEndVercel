@@ -60,10 +60,22 @@ export const getWorkouts = async (req, res, next) => {
   }
 };
 
+export const getWorkout = async (req, res, next) => {
+  const workoutId = req.params.id
+  
+  try {
+    const workout = await Workout.findById( workoutId, );
+    res.status(200).json({
+      workout,
+    });
+  } catch (error) {
+    next(errorHandler(400, "Oops, algo deu errado!"));
+  }
+};
 export const updateWorkouts = async (req, res, next) => {
 
   try {
-    await Workout.findByIdAndUpdate(
+    const workoutUpdated = await Workout.findByIdAndUpdate(
       req.params.id,
       {
         $set: {
@@ -79,7 +91,7 @@ export const updateWorkouts = async (req, res, next) => {
       { new: true, runValidators: true }
     );
 
-    return res.status(200).json({ message: "Atualização completa" });
+    return res.status(200).json({ message: "Atualização completa", workoutUpdated });
   } catch (error) {
     if (error._message.includes("Validation failed")) {
       return next(
